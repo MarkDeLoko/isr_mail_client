@@ -1,15 +1,17 @@
-package com.example.sweater.service;
+package com.example.mail.service;
 
+import com.example.mail.domain.User;
+import com.sun.mail.smtp.SMTPSendFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
@@ -18,11 +20,13 @@ import java.util.Properties;
 public class MailSender {
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private EmailCutter emailCutter;
 
     @Value("${spring.mail.username}")
     private String username;
 
-
+    @Async
     public void send(String emailTo, String subject, String message) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
 
@@ -32,38 +36,30 @@ public class MailSender {
         mailMessage.setText(message);
         mailSender.send(mailMessage);
     }
-    public void sendmail(String emailFrom, String emailPass,
-                          String emailTo, String subject, String text) throws AddressException, MessagingException, IOException {
+
+    @Async
+    public void sendmail(User user, String emailTo, String subject, String text) throws MessagingException, SMTPSendFailedException, IOException {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", "smtp.yandex.ru");
-        props.put("mail.smtp.port", "465");
-        props.put("mail.transport.protocol", "smtps");
+        props.put("mail.smtp.socketFactory.port", "465");
+        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
-        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(emailFrom, emailPass);
-            }
-        });
+        Session session = Session.getInstance(props,
+                new Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(emailCutter.cut(user), user.getPassword());
+                    }
+                });
+
         Message msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress(emailFrom, false));
+        msg.setFrom(new InternetAddress(user.getEmail(), false));
 
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailTo));
         msg.setSubject(subject);
-        msg.setContent(text, "text/html");
+        msg.setText(text);
         msg.setSentDate(new Date());
-
-        MimeBodyPart messageBodyPart = new MimeBodyPart();
-        messageBodyPart.setContent(text, "text/html");
-
-        Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(messageBodyPart);
-        MimeBodyPart attachPart = new MimeBodyPart();
-
-        //attachPart.attachFile("/var/tmp/image19.png");
-        //multipart.addBodyPart(attachPart);
-        //msg.setContent(multipart);
         Transport.send(msg);
     }
 }

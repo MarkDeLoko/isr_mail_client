@@ -1,65 +1,31 @@
 <#import "parts/common.ftl" as c>
 
 <@c.page>
-<#--<div class="form-row">-->
-<#--    <div class="form-group col-md-6">-->
-<#--        <form method="get" action="/main" class="form-inline">-->
-<#--            <input type="text" name="filter" class="form-control" value="${filter?ifExists}" placeholder="Search by tag">-->
-<#--            <button type="submit" class="btn btn-primary ml-2">Search</button>-->
-<#--        </form>-->
-<#--    </div>-->
-<#--</div>-->
-
-<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Add new Message
-</a>
-<div class="collapse" id="collapseExample">
-    <div class="form-group mt-3">
-        <form method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <input type="text" class="form-control" name="receiver" placeholder="Кому" />
-            </div>
-
-            <div class="form-group">
-                <input type="text" class="form-control" name="subject" placeholder="Тема">
-            </div>
-
-            <div class="form-group">
-                <label for="exampleFormControlTextarea1"></label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" name="message" placeholder="Ваше сообщение" rows="10"></textarea>
-            </div>
-
-            <div class="form-group">
-                <div class="custom-file">
-                    <input type="file" name="file" id="customFile">
-                    <label class="custom-file-label" for="customFile">Choose file</label>
-                </div>
-            </div>
-
-            <input type="hidden" name="_csrf" value="${csrf.token}" />
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Добавить</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="card-columns">
-    <#list messages as message>
-    <div class="card my-3">
-        <#if message.filename??>
-        <img src="/img/${message.filename}" class="card-img-top">
-        </#if>
-        <div class="m-2">
-            <span>${message.text}</span>
-            <i>${message.tag}</i>
+    <main role="main" class="container">
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Входящие сообщения:</h6>
+    <#list mails as mail>
+        <div class="media text-muted pt-3">
+            <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg"
+                 preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32">
+                <title>Placeholder</title>
+                <rect width="100%" height="100%" fill="#007bff"/>
+                <text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text>
+            </svg>
+            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <strong class="d-block text-black link-like" data-toggle="collapse"
+                        href="#mail-${mail.id}" aria-expanded="false"
+                        aria-controls="#mail-${mail.id}">${mail.from}</strong>
+                <strong class="d-block text-gray-dark">${mail.subject}</strong>
+            </p>
         </div>
-        <div class="card-footer text-muted">
-            ${message.authorName}
+        <div class="collapse" id="mail-${mail.id}">
+            <div class="card card-body">
+                <pre>${mail.text}</pre>
+            </div>
         </div>
-    </div>
-    <#else>
-    No message
+    <#--    <#else>-->
+    <#--        No messages-->
     </#list>
-</div>
+
 </@c.page>

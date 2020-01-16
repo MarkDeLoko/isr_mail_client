@@ -1,68 +1,48 @@
 package com.example.mail.domain;
 
-import javax.persistence.*;
+import org.springframework.stereotype.Component;
 
-@Entity
-public class Message {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-    private String text;
-    private String tag;
-    private String receiver;
+@Component
+public class Mail {
+
+    private Object text;
+    private String from;
     private String subject;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User author;
-
+    private Integer id;
     private String filename;
-
-    public Message() {
+    public Mail() {
     }
 
-    public Message(String text, String receiver, User user, String subject, String tag) {
-        this.author = user;
-        this.tag = tag;
+    public Mail(Object text, String from, String subject, Integer id) {
+
         this.text = text;
-        this.receiver = receiver;
+        this.from = from;
         this.subject = subject;
+        this.id = id;
     }
-
-    public String getReceiver() {
-        return receiver;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public String getAuthorName() {
-        return author != null ? author.getUsername() : "<none>";
-    }
-
-    public User getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(User author) {
-        this.author = author;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getText() {
+    public Object getText() {
         return text;
     }
-
+    public void setId(Integer id) {
+        this.id = id;
+    }
     public Integer getId() {
         return id;
     }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public String getFrom() {
+        return from;
+    }
+    public String getSubject() {
+        return subject;
+    }
+    public void setText(Object text) {
+        this.text = text;
+    }
+    public void setFrom(String from) {
+        this.from = from;
+    }
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public String getFilename() {
@@ -71,20 +51,5 @@ public class Message {
 
     public void setFilename(String filename) {
         this.filename = filename;
-    }
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
     }
 }
